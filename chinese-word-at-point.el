@@ -54,11 +54,15 @@ I know two Chinese word segmentation tools, which have command line
 interface, are jieba (结巴中文分词) and scws, both of them are hosting
 on Github.")
 
+(defvar chinese-word-split-function
+  'chinese-word--split-by-space
+  "Internal function to split CJK words.")
+
 (defun chinese-word--split-by-space (chinese-string)
   "Split CHINESE-STRING by one space.
-Return Chinese words as a string separated by one space"
-  (shell-command-to-string
-   (format chinese-word-split-command chinese-string)))
+Return Chinese words as a list"
+  (split-string (shell-command-to-string
+                 (format chinese-word-split-command chinese-string))))
 
 (defun chinese-word-chinese-string-p (string)
   "Return t if STRING is a Chinese string."
@@ -79,8 +83,7 @@ Return Chinese words as a string separated by one space"
                (current-pos (point))
                (index beginning-pos)
                (old-index beginning-pos))
-          (cl-dolist (word (split-string (chinese-word--split-by-space
-                                          current-word)))
+          (cl-dolist (word (funcall chinese-word-split-function current-word))
             (cl-incf index (length word))
             (if (and (>= current-pos old-index)
                      (< current-pos index))
